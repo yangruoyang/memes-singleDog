@@ -1,6 +1,3 @@
-/**
- * Created by merry on 2017/2/14.
- */
 const fs      = require('fs');
 const request = require('superagent');
 const cheerio = require('cheerio');
