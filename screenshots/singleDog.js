@@ -7,10 +7,15 @@ const SEARCH_URL = 'http://www.ubiaoqing.com/search/';
 let memeLinks = [];
 
 (async function crawler() {
-    let keyword = '单身狗';
-    let links = await requestLink(keyword);
-    await timerChunk(links, downloadMeMe, 5);
-    console.log('完成！');
+    let keyword = '金馆长';
+    try {
+        let links = await requestLink(keyword);
+        await timerChunk(links, downloadMeMe, 5);
+        console.log('完成！');
+    } catch (err) {
+        console.error(err);
+    }
+
 })();
 
 
@@ -31,16 +36,23 @@ function timerChunk(any, fn, limit) {
 function downloadMeMe (url) {
     return new Promise((resolve, reject) => {
         console.log(`下载: ${url}`);
-        request.get(url).pipe(fs.createWriteStream(`./memes/${url.substr(-22)}`)).on('close', resolve);
-    })
+
+        let fileName = `./memes/${url.substr(-22)}`;
+        let stream   = fs.createWriteStream(fileName);
+
+        request.get(url)
+            .pipe(stream)
+            .on('close', resolve)
+            .on('end', () => console.log(`下载：${url} 完成！`));
+    });
 }
 
 function requestLink(keyword, page) {
 
     page = page || 1;
 
-    let url = `${ SEARCH_URL }${ encodeURI(keyword)}/${page}`;
-    console.log(`搜索关键字：${keyword}, 当前页${page}`);
+    let url = `${ SEARCH_URL }${ encodeURI(keyword) }/${ page }`;
+    console.log(`关键字：${ keyword }, 当前页${ page }`);
 
     return request.get(url).then((res) => {
 
