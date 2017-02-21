@@ -4,13 +4,13 @@ const cheerio = require('cheerio');
 const fs      = require('fs');
 
 const SEARCH_URL = 'http://www.ubiaoqing.com/search/';
-const keyword    = '单身狗';
+const keyword    = '';
 let page         = 1;
 let linkAssemble = []; // 链接集合
 
 
 (async function crawler() {
-    let keyword = '单身狗';
+    let keyword = '金馆长';
     try {
         let links = await getLinksByPage(keyword, 1);
         await timerChunk(links, downloadMeMe, 5, 3000);
@@ -60,13 +60,11 @@ async function getLinksByPage (keyword, page) {
  * @return
  * */
 function downloadMeMe (url) {
-    return new Promise((resolve, reject) => {
         console.log(`下载: ${url}`);
         let filePath = `./memes/${url.substr(-22)}`;    // 取到后22位作为文件名
         let stream   = fs.createWriteStream(filePath);  // 创建一个可写 stream 对象
         // 请求表情包地址，并 pipe 到刚才创建的 stream 对象
-        request.get(url).pipe(stream).on('close', resolve)
-    });
+        request.get(url).pipe(stream);
 }
 
 /**
@@ -120,8 +118,8 @@ function timerChunk(any, fn, limit, wait = 0) {
         await (new Promise((resolve, reject) => setTimeout(resolve, ~~(Math.random() * wait))));
 
         let params = any.splice(0, limit);              // 每次取出 limit 数量的任务
-        let queue  = params.map((param) => fn(param));  // 调用函数，返回Promise数组 这里默认fn是返回Promise
-        return Promise.all(queue).then(run);            // 等待Promise数组执行完成继续调用run
+        params.forEach((param) => fn(param));
+        return run();
     }
 
     return run();
